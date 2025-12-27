@@ -22,6 +22,10 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy package.json for npm scripts
+COPY --from=builder /app/package.json ./package.json
+
+# Copy Next.js production build
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
@@ -34,4 +38,5 @@ ENV PORT=3000
 # set hostname to localhost
 ENV HOSTNAME="0.0.0.0"
 
-CMD ["npm", "start"]
+# Use node server.js for standalone builds (next binary not included in standalone)
+CMD ["node", "server.js"]

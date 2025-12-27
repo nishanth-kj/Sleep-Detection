@@ -19,7 +19,7 @@ services:
       timeout: 5s
       retries: 5
 
-  # Frontend - Next.js PWA
+  # Frontend - Next.js
   frontend:
     build:
       context: ./web

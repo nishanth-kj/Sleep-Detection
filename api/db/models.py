@@ -66,7 +66,7 @@ class SystemEventDB(Base):
     event_type = Column(String(50), nullable=False, index=True)
     severity = Column(String(20), nullable=False)
     message = Column(String(500), nullable=False)
-    metadata = Column(JSON, nullable=True)
+    event_metadata = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=func.now())
 
     def to_dict(self):
@@ -76,7 +76,7 @@ class SystemEventDB(Base):
             "event_type": self.event_type,
             "severity": self.severity,
             "message": self.message,
-            "metadata": self.metadata,
+            "metadata": self.event_metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
 
@@ -92,7 +92,7 @@ class UserSessionDB(Base):
     total_events = Column(Integer, default=0)
     drowsy_events = Column(Integer, default=0)
     average_ear = Column(Float, nullable=True)
-    metadata = Column(JSON, nullable=True)
+    session_metadata = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=func.now())
 
     def to_dict(self):
@@ -104,6 +104,6 @@ class UserSessionDB(Base):
             "total_events": self.total_events,
             "drowsy_events": self.drowsy_events,
             "average_ear": self.average_ear,
-            "metadata": self.metadata,
+            "metadata": self.session_metadata,
             "created_at": self.created_at.isoformat() if self.created_at else None
         }
