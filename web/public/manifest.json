@@ -1,0 +1,22 @@
+{
+    "name": "Sleep Detection App",
+    "short_name": "SleepSafe",
+    "theme_color": "#111827",
+    "background_color": "#111827",
+    "display": "standalone",
+    "scope": "/",
+    "start_url": "/",
+    "orientation": "portrait",
+    "icons": [
+        {
+            "src": "/icon.png",
+            "sizes": "192x192",
+            "type": "image/png"
+        },
+        {
+            "src": "/icon.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
