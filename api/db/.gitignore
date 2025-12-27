@@ -1,0 +1,17 @@
+# Database files
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+
+# PostgreSQL data
+postgres/
+
+# Backups
+backups/
+*.sql
+*.bak
+
+# Migrations
+__pycache__/

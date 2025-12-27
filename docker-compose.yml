@@ -1,4 +1,25 @@
 services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: sleepsafe-postgres
+    environment:
+      - POSTGRES_USER=sleepsafe
+      - POSTGRES_PASSWORD=sleepsafe_password
+      - POSTGRES_DB=sleepsafe
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./api/db/postgres:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U sleepsafe -d sleepsafe" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Frontend - Next.js PWA
   frontend:
     build:
       context: ./web
@@ -8,3 +29,73 @@ services:
     restart: always
     environment:
       - NODE_ENV=production
+    depends_on:
+      - backend
+
+  # Backend - FastAPI + SQLAlchemy + MLflow
+  backend:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./api/mlruns:/app/mlruns
+      - ./api/db:/app/db
+    environment:
+      - DATABASE_URL=postgresql://sleepsafe:sleepsafe_password@postgres:5432/sleepsafe
+      - MLFLOW_TRACKING_URI=postgresql://sleepsafe:sleepsafe_password@postgres:5432/sleepsafe
+    command: sh -c "python -c 'from db import init_db; init_db()' && uvicorn main:app --host 0.0.0.0 --port 8000"
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # MLflow UI
+  mlflow_ui:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    command: mlflow ui --backend-store-uri postgresql://sleepsafe:sleepsafe_password@postgres:5432/sleepsafe --host 0.0.0.0 --port 5000
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./api/mlruns:/app/mlruns
+      - ./api/db:/app/db
+    environment:
+      - MLFLOW_TRACKING_URI=postgresql://sleepsafe:sleepsafe_password@postgres:5432/sleepsafe
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+  # ML Training (run with --profile training)
+  ml_training:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    command: sh -c "python -c 'from db import init_db; init_db()' && python mlops/train_model.py"
+    volumes:
+      - ./api/mlruns:/app/mlruns
+      - ./api/db:/app/db
+    environment:
+      - DATABASE_URL=postgresql://sleepsafe:sleepsafe_password@postgres:5432/sleepsafe
+      - MLFLOW_TRACKING_URI=postgresql://sleepsafe:sleepsafe_password@postgres:5432/sleepsafe
+    depends_on:
+      postgres:
+        condition: service_healthy
+    profiles:
+      - training
+
+# Persistent volumes
+volumes:
+  postgres_data:
+    driver: local

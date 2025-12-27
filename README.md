@@ -75,6 +75,26 @@ Sleep-Detection/
 │   ├── package.json           # Dependencies
 │   └── Dockerfile             # Container config
 │
+├── 🐍 api/                    # FastAPI Backend
+│   ├── main.py                # API entry point
+│   ├── models/                # Pydantic models
+│   │   ├── __init__.py
+│   │   └── models.py
+│   ├── services/              # Business logic
+│   │   ├── __init__.py
+│   │   └── services.py
+│   ├── mlops/                 # ML training
+│   │   ├── __init__.py
+│   │   └── train_model.py
+│   ├── db/                    # Database (Django-style)
+│   │   ├── __init__.py
+│   │   ├── database.py
+│   │   ├── models.py
+│   │   ├── sleepsafe.db       # SQLite database
+│   │   └── postgres/          # PostgreSQL data (Docker)
+│   ├── pyproject.toml
+│   └── Dockerfile
+│
 ├── 🦀 core/                   # Rust Shared Library
 │   ├── src/
 │   │   └── lib.rs             # FFI/JNI exports
@@ -92,18 +112,19 @@ Sleep-Detection/
 │           ├── AppDelegate.swift
 │           └── SleepCoreBridge.h  # C bridge for Rust
 │
-├── 🐍 api/                    # Backend (Optional, Empty)
-│   └── (Future: FastAPI + MLflow for telemetry)
-│
 ├── 📦 lib/                    # Future Libraries
 │   ├── npm/                   # (Planned) NPM package
 │   └── pypi/                  # (Planned) PyPI package
 │
 ├── 📚 docs/                   # Documentation
 │   ├── ARCHITECTURE.md        # System design
-│   └── DEPLOYMENT.md          # Deployment guide
+│   ├── DEPLOYMENT.md          # Deployment guide
+│   ├── DATABASE-STRUCTURE.md  # Database setup
+│   ├── BACKEND-COMPLETE.md    # Backend features
+│   └── DOCKER.md              # Docker guide
 │
 ├── docker-compose.yml         # Multi-container orchestration
+├── .env.example               # Environment template
 └── README.md                  # This file
 ```
 
@@ -118,6 +139,37 @@ Sleep-Detection/
 | **Web** | Node.js 18+, npm 8+ |
 | **Mobile** | Android Studio / Xcode |
 | **Rust** | Rust 1.70+ (for core compilation) |
+
+### 2️⃣ Backend API (Python + FastAPI)
+
+The backend provides telemetry logging and MLOps features:
+
+```bash
+cd api
+
+# Install dependencies
+uv sync
+
+# Run development server
+uv run uvicorn main:app --reload
+```
+
+🔧 **API Docs**: http://localhost:8000/docs
+
+**Features:**
+- Detection event logging
+- Model metrics tracking
+- MLflow experiment tracking
+- Statistics and analytics
+- Database: `api/db/sleepsafe.db` (Django-style)
+
+**Endpoints:**
+- `POST /telemetry` - Log detection event
+- `GET /statistics` - Get stats
+- `GET /dashboard` - Dashboard data  
+- `POST /metrics/model` - Log model metrics
+
+**Note:** Backend is fully functional with SQLite. PostgreSQL optional for production.
 
 ### 🌐 Web Application (Recommended)
 
@@ -285,19 +337,36 @@ Where p1...p6 are eye landmark coordinates
 ## 🐳 Docker Deployment
 
 **Note:** Docker Compose currently references an empty `api/` directory. To run only the web app:
+Run the complete stack with Docker:
 
 ```bash
-# Option 1: Run web service only
-docker-compose up frontend
-
-# Option 2: Full stack (requires api/ restoration)
-docker-compose up --build
+docker compose up -d --build
 ```
 
 **Services:**
-- Frontend: http://localhost:80
-- Backend: http://localhost:8000 *(not functional)*
-- MLflow UI: http://localhost:5001 *(not functional)*
+- **Frontend**: http://localhost:80 (Next.js PWA)
+- **Backend API**: http://localhost:8000 (FastAPI)
+- **MLflow UI**: http://localhost:5001 (Experiment tracking)
+- **PostgreSQL**: Port 5432 (Database)
+
+**Data Persistence:**
+- PostgreSQL: `api/db/postgres/`
+- MLruns: `api/mlruns/`
+
+**Commands:**
+```bash
+# Start all services
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop all
+docker compose down
+
+# Run ML training
+docker compose --profile training up ml_training
+```
 
 ---
 
@@ -362,18 +431,28 @@ None required! The app works out-of-the-box.
 | Web PWA | ✅ Fully Functional |
 | Rust Core | ✅ Code Complete |
 | Android App | 🏗️ Skeleton Code |
-| iOS App | 🏗️ Skeleton Code |
-| Backend API | ❌ Empty Directory |
+## 🐛 Current Status & TODOs
 
-### Roadmap
+### ✅ Complete & Working
+- [x] Web PWA (Next.js + TensorFlow.js)
+- [x] Backend API (FastAPI + SQLAlchemy)
+- [x] Database (SQLite + PostgreSQL support)
+- [x] MLOps (MLflow + training pipeline)
+- [x] Docker setup (multi-container)
+- [x] Documentation (comprehensive)
 
-- [ ] Restore `api/` backend with FastAPI + MLflow
-- [ ] Compile Rust core for mobile targets
-- [ ] Integrate Rust libraries with Android/iOS
-- [ ] Publish `lib/npm` and `lib/pypi` packages
-- [ ] Add advanced analytics dashboard
-- [ ] Implement telemetry collection (opt-in)
-- [ ] Multi-face detection support
+### 🏗️ In Progress
+- [ ] Compile Rust core for Android (`libsleep_core.so`)
+- [ ] Compile Rust core for iOS (`libsleep_core.a`)  
+- [ ] Integrate Rust with mobile apps
+- [ ] Publish NPM package (`lib/npm`)
+- [ ] Publish PyPI package (`lib/pypi`)
+
+### 📊 Database
+- **Location**: `api/db/` (Django-style)
+- **SQLite**: `api/db/sleepsafe.db`
+- **PostgreSQL**: `api/db/postgres/` (Docker)
+- **Models**: 4 tables (events, metrics, sessions, system) support
 - [ ] Customizable EAR thresholds
 - [ ] Bluetooth alerting (mobile)
 
