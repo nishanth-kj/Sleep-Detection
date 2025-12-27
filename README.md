@@ -34,7 +34,7 @@ Sleep_Detection/
 
 1. **Clone the repository**:
     ```bash
-    git clone https://github.com/nishanthkj/Sleep_Detection
+    git clone https://github.com/nishanth-kj/Sleep_Detection
     cd Sleep_Detection
     ```
 
