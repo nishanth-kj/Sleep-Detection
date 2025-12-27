@@ -1,203 +1,432 @@
-# Eye Closure Detection System
+# 😴 SleepSafe - AI-Powered Drowsiness Detection System
 
-## Overview
+<div align="center">
 
-This project is a real-time eye closure detection system that uses a webcam feed to monitor eye closures. It calculates the Eye Aspect Ratio (EAR) to determine if the eyes are closed and triggers an alarm if they remain closed for a specified number of consecutive frames. This can be useful for detecting drowsiness in drivers, ensuring alertness in security personnel, and various other applications.
+![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)
+![License](https://img.shields.io/badge/license-MIT-green.svg)
+![Platform](https://img.shields.io/badge/platform-Web%20%7C%20iOS%20%7C%20Android-lightgrey.svg)
 
-## Project Structure
+**Real-time drowsiness detection using computer vision and machine learning**
+
+[Features](#-features) • [Quick Start](#-quick-start) • [Architecture](#-architecture) • [Documentation](#-documentation)
+
+</div>
+
+---
+
+## 🎯 Overview
+
+SleepSafe is a **cross-platform drowsiness detection ecosystem** that prevents accidents caused by fatigue. Using advanced **computer vision** and **AI**, the system monitors eye closure patterns in real-time and triggers alerts when drowsiness is detected.
+
+### 🌟 Key Highlights
+
+- 🌐 **Offline-First Web App**: Progressive Web App with TensorFlow.js for browser-based detection
+- 📱 **Native Mobile Apps**: iOS (Swift) and Android (Java) with shared Rust core
+- 🦀 **High-Performance Rust Core**: Memory-safe, optimized logic shared across platforms
+- 🎨 **Beautiful UI**: Glassmorphism design with dark/light modes
+- 🔒 **Privacy-Focused**: All processing happens on-device, no data leaves your machine
+- ⚡ **Real-Time Performance**: Optimized for low-latency detection (< 100ms)
+
+---
+
+## 🏗️ Architecture
 
 ```
-Sleep_Detection/
-│
-├── models/
-│   └── shape_predictor_68_face_landmarks.dat
-│
-├── eye_closure_detection.py
-├── requirements.txt
-└── README.md
+┌─────────────────────────────────────────────────────────────────┐
+│                         SleepSafe Ecosystem                      │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │   Web PWA    │  │  Android App │  │     iOS App          │  │
+│  │  (Next.js)   │  │   (Java)     │  │     (Swift)          │  │
+│  │  TensorFlow  │  │     JNI      │  │       FFI            │  │
+│  └──────┬───────┘  └──────┬───────┘  └──────────┬───────────┘  │
+│         │                 │                       │              │
+│         │                 └───────────┬───────────┘              │
+│         │                             │                          │
+│         │                      ┌──────▼──────────┐               │
+│         │                      │   Rust Core     │               │
+│         │                      │  (libsleep)     │               │
+│         │                      └─────────────────┘               │
+│         │                                                        │
+│    ┌────▼──────────────────────────────────────────┐            │
+│    │         MediaPipe Face Mesh                    │            │
+│    │    (468 Facial Landmarks Detection)            │            │
+│    └────────────────────────────────────────────────┘            │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
 ```
 
-## Files Description
+---
 
-- **models/shape_predictor_68_face_landmarks.dat**: The pre-trained dlib shape predictor model file.
-- **eye_closure_detection.py**: The main Python script for real-time eye closure detection.
-- **requirements.txt**: List of dependencies required for the project.
-- **README.md**: Documentation for the project.
+## 📂 Project Structure
 
-## Setup Instructions
+```
+Sleep-Detection/
+│
+├── 🌐 web/                    # Next.js Progressive Web App
+│   ├── app/
+│   │   ├── page.tsx           # Main detection interface
+│   │   ├── layout.tsx         # App shell
+│   │   └── globals.css        # Global styles
+│   ├── public/
+│   │   ├── manifest.json      # PWA manifest
+│   │   └── icons/             # App icons
+│   ├── package.json           # Dependencies
+│   └── Dockerfile             # Container config
+│
+├── 🦀 core/                   # Rust Shared Library
+│   ├── src/
+│   │   └── lib.rs             # FFI/JNI exports
+│   └── Cargo.toml             # Rust dependencies
+│
+├── 📱 app/                    # Native Mobile Apps
+│   ├── android/               # Android Application
+│   │   └── app/src/main/
+│   │       ├── java/.../MainActivity.java
+│   │       └── AndroidManifest.xml
+│   │
+│   └── ios/                   # iOS Application
+│       └── SleepDetection/
+│           ├── ViewController.swift
+│           ├── AppDelegate.swift
+│           └── SleepCoreBridge.h  # C bridge for Rust
+│
+├── 🐍 api/                    # Backend (Optional, Empty)
+│   └── (Future: FastAPI + MLflow for telemetry)
+│
+├── 📦 lib/                    # Future Libraries
+│   ├── npm/                   # (Planned) NPM package
+│   └── pypi/                  # (Planned) PyPI package
+│
+├── 📚 docs/                   # Documentation
+│   ├── ARCHITECTURE.md        # System design
+│   └── DEPLOYMENT.md          # Deployment guide
+│
+├── docker-compose.yml         # Multi-container orchestration
+└── README.md                  # This file
+```
+
+---
+
+## 🚀 Quick Start
 
 ### Prerequisites
 
-- Python 3.12
+| Component | Requirement |
+|-----------|-------------|
+| **Web** | Node.js 18+, npm 8+ |
+| **Mobile** | Android Studio / Xcode |
+| **Rust** | Rust 1.70+ (for core compilation) |
 
-### Installation
+### 🌐 Web Application (Recommended)
 
-1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/nishanth-kj/Sleep_Detection
-    cd Sleep_Detection
-    ```
+The web app is **fully functional** and works offline:
 
-2. **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
+```bash
+# Clone repository
+git clone https://github.com/nishanth-kj/Sleep-Detection.git
+cd Sleep-Detection/web
 
-3. **Install the required packages**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Install dependencies
+npm install
 
-4. **Download the shape predictor model**:
-    - Download `shape_predictor_68_face_landmarks.dat` from the [dlib model zoo](http://dlib.net/files/shape_predictor_68_face_landmarks.dat.bz2) and place it in the `models` directory.
-
-## Usage
-
-1. **Run the eye closure detection script**:
-    ```bash
-    python eye_closure_detection.py
-    ```
-
-2. **Allow webcam access**:
-    - The script will access your webcam. Ensure you have a working webcam connected.
-
-3. **Monitor the output**:
-    - The script will display the webcam feed and highlight detected faces and eye regions. It will trigger an alarm if the eyes remain closed for the specified number of consecutive frames.
-
-## Code Explanation
-
-### `eye_closure_detection.py`
-
-This is the main Python script for real-time eye closure detection.
-
-```python
-"""
-This module detects eye closure in real-time using a webcam feed. It calculates the
-Eye Aspect Ratio (EAR) to determine if the eyes are closed and triggers an alarm if
-they remain closed for a specified number of consecutive frames. This can be useful
-for detecting drowsiness in drivers, ensuring alertness in security personnel, and
-various other applications.
-"""
-
-import winsound  # Standard import should be first
-import cv2  # pylint: disable=import-error
-import dlib  # pylint: disable=import-error
-import numpy as np
-from scipy.spatial import distance as dist  # pylint: disable=import-error
-
-# Function to calculate the Eye Aspect Ratio (EAR)
-def eye_aspect_ratio(eye):
-    """
-    Calculate the Eye Aspect Ratio (EAR) for a given eye.
-    
-    Parameters:
-    eye (numpy.ndarray): Array of coordinates for the eye landmarks.
-    
-    Returns:
-    float: The calculated EAR value.
-    """
-    dist_a = dist.euclidean(eye[1], eye[5])
-    dist_b = dist.euclidean(eye[2], eye[4])
-    dist_c = dist.euclidean(eye[0], eye[3])
-    aspect_ratio = (dist_a + dist_b) / (2.0 * dist_c)
-    return aspect_ratio
-
-# Constants for EAR threshold and consecutive frames
-EAR_THRESHOLD = 0.25
-EAR_CONSEC_FRAMES = 20
-
-# Initialize the frame counters and the alarm status
-COUNTER = 0
-ALARM_ON = False
-
-# Load the pre-trained face detector and shape predictor
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-try:
-    predictor = dlib.shape_predictor("models/shape_predictor_68_face_landmarks.dat")  # pylint: disable=no-member
-except RuntimeError as e:
-    print(f"Error loading shape predictor: {e}")
-    exit()
-
-# Grab the indexes of the facial landmarks for the left and right eye
-(L_START, L_END) = (42, 48)
-(R_START, R_END) = (36, 42)
-
-# Start the video stream
-cap = cv2.VideoCapture(0)  # pylint: disable=no-member
-
-try:
-    while True:
-        ret, frame = cap.read()
-        if not ret or frame is None:
-            print("Failed to capture frame")
-            break
-
-        # Convert the frame to grayscale
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)  # pylint: disable=no-member
-
-        # Ensure the grayscale image is 8-bit
-        if gray.dtype != np.uint8:
-            gray = gray.astype('uint8')
-
-        # Detect faces
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=5)
-
-        for (x, y, w, h) in faces:
-            rect = dlib.rectangle(int(x), int(y), int(x + w), int(y + h))  # pylint: disable=no-member
-            shape = predictor(gray, rect)
-            shape = np.array([[p.x, p.y] for p in shape.parts()])
-
-            left_eye = shape[L_START:L_END]
-            right_eye = shape[R_START:R_END]
-            left_ear = eye_aspect_ratio(left_eye)
-            right_ear = eye_aspect_ratio(right_eye)
-
-            ear = (left_ear + right_ear) / 2.0
-
-            if ear < EAR_THRESHOLD:
-                COUNTER += 1
-
-                if COUNTER >= EAR_CONSEC_FRAMES:
-                    if not ALARM_ON:
-                        ALARM_ON = True
-                        winsound.Beep(2500, 1000)  # Beep at 2500 Hz for 1 second
-            else:
-                COUNTER = 0
-                ALARM_ON = False
-
-            # Draw the face bounding box and eye regions
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)  # pylint: disable=no-member
-            for (ex, ey) in np.concatenate((left_eye, right_eye), axis=0):
-                cv2.circle(frame, (ex, ey), 2, (0, 255, 0), -1)  # pylint: disable-no-member
-
-        cv2.imshow("Frame", frame)  # pylint: disable=no-member
-        if cv2.waitKey(1) & 0xFF == ord('q'):  # pylint: disable-no-member
-            break
-
-except KeyboardInterrupt:
-    print("Interrupted by user")
-
-finally:
-    cap.release()
-    cv2.destroyAllWindows()  # pylint: disable-no-member
+# Start development server
+npm run dev
 ```
 
-### `requirements.txt`
+📱 Open **http://localhost:3000** in your browser
 
-This file lists all the dependencies required for the project.
+#### **How to Use:**
+1. Click the **camera icon** to start detection
+2. Allow camera access when prompted
+3. Position your face in the webcam view
+4. Close your eyes for 3+ seconds to trigger the alarm
+5. Toggle **dark/light mode** with the moon/sun icon
+
+---
+
+### 📱 Mobile Apps
+
+#### **Android Development**
+
+##### Step 1: Build Rust Core
+
+```bash
+cd core
+rustup target add aarch64-linux-android
+cargo install cargo-ndk
+cargo ndk -t arm64-v8a --platform 24 build --release
+```
+
+##### Step 2: Copy Library
+
+```bash
+mkdir -p app/android/app/src/main/jniLibs/arm64-v8a
+cp target/aarch64-linux-android/release/libsleep_core.so \
+   app/android/app/src/main/jniLibs/arm64-v8a/
+```
+
+##### Step 3: Open in Android Studio
+
+```bash
+# Open app/android/ folder
+android-studio app/android
+```
+
+Build and run on device or emulator.
+
+---
+
+#### **iOS Development**
+
+##### Step 1: Build Rust Core
+
+```bash
+cd core
+rustup target add aarch64-apple-ios x86_64-apple-ios
+cargo install cargo-lipo
+cargo lipo --release
+```
+
+##### Step 2: Configure Xcode
+
+1. Open `app/ios/SleepDetection.xcodeproj` in Xcode
+2. Add `core/target/universal/release/libsleep_core.a` to **Link Binary With Libraries**
+3. Set **Objective-C Bridging Header** to `SleepDetection/SleepCoreBridge.h`
+4. Build and run on device/simulator
+
+---
+
+## 🧠 How It Works
+
+### Detection Algorithm: Eye Aspect Ratio (EAR)
+
+The system uses the **Eye Aspect Ratio** metric to detect eye closure:
 
 ```
-cmake==3.30.0
-dlib @ file:///D:/Projects/Python/Sleep%20Detection/dlib-19.24.99-cp312-cp312-win_amd64.whl#sha256=20c62e606ca4c9961305f7be3d03990380d3e6c17f8d27798996e97a73271862
-numpy==1.26.4
-opencv-python==4.10.0.84
-PyOpenGL==3.1.7
-scipy==1.14.0
+       ||p2 - p6|| + ||p3 - p5||
+EAR = ───────────────────────────
+           2 × ||p1 - p4||
+
+Where p1...p6 are eye landmark coordinates
 ```
 
-## Conclusion
+**Detection Logic:**
+- EAR > 0.25 → Eyes **OPEN** ✅
+- EAR < 0.25 for **10 consecutive frames** (≈ 3 seconds) → **DROWSINESS DETECTED** 🚨
 
-This documentation provides a comprehensive guide to setting up and running the Eye Closure Detection System. By following the steps outlined, you should be able to deploy the application and monitor eye closures in real-time. If you encounter any issues, ensure that all dependencies are installed and that the model file is correctly placed in the `models` directory.
+### Technology Stack
 
-Feel free to customize and enhance the functionality as per your requirements. This project serves as a foundational implementation for real-time eye closure detection.
+#### Web Frontend
+- **Framework**: Next.js 16.1 (React 19.2)
+- **AI/ML**: TensorFlow.js 4.22, MediaPipe Face Mesh 1.0
+- **Styling**: TailwindCSS 3.4, Framer Motion 12.23
+- **PWA**: next-pwa 5.6 for offline support
+- **Utilities**: react-webcam, lucide-react icons
+
+#### Mobile Core
+- **Language**: Rust 2021 Edition
+- **Build**: Cargo with aggressive optimizations
+- **Features**:
+  - `opt-level = 3` - Maximum optimization
+  - `lto = true` - Link-time optimization
+  - `codegen-units = 1` - Single compilation unit
+  - `panic = "abort"` - Smaller binary size
+
+#### Native Integrations
+- **Android**: JNI (Java Native Interface)
+- **iOS**: FFI (Foreign Function Interface) via C bridge
+
+---
+
+## ✨ Features
+
+### Core Functionality
+
+✅ **Real-Time Face Detection**
+- 468 facial landmarks tracked at 30 FPS
+- MediaPipe Face Mesh model (optimized for web)
+
+✅ **Eye Closure Monitoring**
+- Continuous EAR calculation for both eyes
+- Configurable threshold and frame count
+
+✅ **Smart Alerting**
+- Audio alarm using Web Audio API
+- Visual on-screen alerts
+- Mute/unmute toggle
+
+✅ **Offline Capability**
+- PWA with service worker caching
+- Install to home screen (mobile/desktop)
+- Works without internet after first load
+
+✅ **Dark/Light Modes**
+- System preference detection
+- Manual toggle
+- Smooth transitions
+
+### UI/UX
+
+🎨 **Modern Design**
+- Glassmorphism effects
+- Smooth animations with Framer Motion
+- Responsive layout (mobile-first)
+
+📊 **Live Statistics**
+- Current EAR value display
+- Online/offline indicator
+- FPS counter
+- Detection status
+
+---
+
+## 🐳 Docker Deployment
+
+**Note:** Docker Compose currently references an empty `api/` directory. To run only the web app:
+
+```bash
+# Option 1: Run web service only
+docker-compose up frontend
+
+# Option 2: Full stack (requires api/ restoration)
+docker-compose up --build
+```
+
+**Services:**
+- Frontend: http://localhost:80
+- Backend: http://localhost:8000 *(not functional)*
+- MLflow UI: http://localhost:5001 *(not functional)*
+
+---
+
+## 📚 Documentation
+
+- 📖 **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design, diagrams, data flow
+- 🚀 **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Detailed deployment instructions
+- 💻 **Code Comments** - Inline documentation in all source files
+
+---
+
+## 🔒 Privacy & Security
+
+### On-Device Processing
+- **NO** data is sent to external servers
+- Facial landmarks processed locally
+- Web app works 100% offline
+
+### Data Storage
+- **NO** persistent storage of video/images
+- **NO** tracking or analytics
+- Optional browser cache for PWA only
+
+### Permissions
+- **Camera**: Required for face detection
+- **Audio**: For alarm playback (Web Audio API)
+
+---
+
+## 🛠️ Development
+
+### Web App Commands
+
+```bash
+npm run dev      # Start dev server
+npm run build    # Build for production
+npm run start    # Run production server
+npm run lint     # Run ESLint
+```
+
+### Rust Core Commands
+
+```bash
+cargo build --release  # Build optimized library
+cargo test             # Run unit tests
+cargo clippy           # Lint checks
+cargo fmt              # Format code
+```
+
+### Environment Variables
+
+None required! The app works out-of-the-box.
+
+---
+
+## 🐛 Known Issues & Roadmap
+
+### Current Status
+
+| Component | Status |
+|-----------|--------|
+| Web PWA | ✅ Fully Functional |
+| Rust Core | ✅ Code Complete |
+| Android App | 🏗️ Skeleton Code |
+| iOS App | 🏗️ Skeleton Code |
+| Backend API | ❌ Empty Directory |
+
+### Roadmap
+
+- [ ] Restore `api/` backend with FastAPI + MLflow
+- [ ] Compile Rust core for mobile targets
+- [ ] Integrate Rust libraries with Android/iOS
+- [ ] Publish `lib/npm` and `lib/pypi` packages
+- [ ] Add advanced analytics dashboard
+- [ ] Implement telemetry collection (opt-in)
+- [ ] Multi-face detection support
+- [ ] Customizable EAR thresholds
+- [ ] Bluetooth alerting (mobile)
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/amazing-feature`)
+3. **Commit** your changes (`git commit -m 'Add amazing feature'`)
+4. **Push** to the branch (`git push origin feature/amazing-feature`)
+5. **Open** a Pull Request
+
+### Development Setup
+
+```bash
+# Setup all components
+npm install       # Web dependencies
+cargo build       # Rust core
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **MediaPipe** team for Face Mesh model
+- **TensorFlow.js** for browser ML capabilities
+- **Rust** community for FFI/JNI tooling
+- **Next.js** team for the amazing framework
+
+---
+
+## 📧 Contact & Support
+
+- **Author**: Nishanth KJ
+- **GitHub**: [@nishanth-kj](https://github.com/nishanth-kj)
+- **Repository**: [Sleep-Detection](https://github.com/nishanth-kj/Sleep-Detection)
+- **Issues**: [Report a Bug](https://github.com/nishanth-kj/Sleep-Detection/issues)
+
+---
+
+<div align="center">
+
+**Made with ❤️ for safer roads and workplaces**
+
+⭐ Star this repo if you find it useful!
+
+</div>
